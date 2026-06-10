@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>πタイピング</title>
+<style>
+body{
+    font-family:sans-serif;
+    text-align:center;
+    background:#111;
+    color:white;
+    margin-top:50px;
+}
+#pi{
+    font-size:24px;
+    word-break:break-all;
+    width:80%;
+    margin:auto;
+}
+input{
+    width:80%;
+    font-size:24px;
+    padding:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>円周率3分タイピング</h1>
+
+<div>残り時間: <span id="time">180</span>秒</div>
+<div>正解桁数: <span id="score">0</span></div>
+
+<p id="pi"></p>
+
+<input id="input" autocomplete="off" spellcheck="false">
+
+<script>
+
+// Chudnovsky法
+function factorial(n){
+    let r = 1n;
+    for(let i=2n;i<=n;i++) r*=i;
+    return r;
+}
+
+function sqrtBigInt(value){
+    if(value < 2n) return value;
+
+    let x0 = value;
+    let x1 = (x0 + value / x0) >> 1n;
+
+    while(x1 < x0){
+        x0 = x1;
+        x1 = (x0 + value / x0) >> 1n;
+    }
+
+    return x0;
+}
+
+function computePi(digits){
+
+    const extra = 20;
+    const scale = 10n ** BigInt(digits + extra);
+
+    let sum = 0n;
+
+    const terms = Math.ceil(digits / 14) + 1;
+
+    for(let k=0;k<terms;k++){
+
+        const K = BigInt(k);
+
+        const num =
+            factorial(6n*K) *
+            (13591409n + 545140134n*K);
+
+        const den =
+            factorial(3n*K) *
+            factorial(K)**3n *
+            ((-262537412640768000n) ** K);
+
+        sum += num * scale / den;
+    }
+
+    const C = 426880n * sqrtBigInt(10005n * scale * scale);
+
+    const piScaled = C * scale / sum;
+
+    const s = piScaled.toString();
+
+    return s[0] + "." + s.slice(1, digits+1);
+}
+
+// 最初に20桁だけ生成
+let piDigits = computePi(20);
+
+const piView = document.getElementById("pi");
+const input = document.getElementById("input");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+
+function updateDisplay(){
+    piView.textContent = piDigits;
+}
+
+updateDisplay();
+
+let time = 180;
+let gameOver = false;
+
+const timer = setInterval(()=>{
+    if(gameOver) return;
+
+    time--;
+    timeEl.textContent = time;
+
+    if(time <= 0){
+        gameOver = true;
+        clearInterval(timer);
+        input.disabled = true;
+
+        alert(
+            "終了！\n" +
+            "入力できた桁数: " +
+            (input.value.length)
+        );
+    }
+},1000);
+
+input.addEventListener("input", ()=>{
+
+    if(gameOver) return;
+
+    const typed = input.value;
+
+    // 必要になったら追加計算
+    if(typed.length + 50 > piDigits.length){
+
+        const target =
+            Math.max(
+                piDigits.length + 100,
+                typed.length + 100
+            );
+
+        piDigits = computePi(target);
+        updateDisplay();
+    }
+
+    for(let i=0;i<typed.length;i++){
+
+        if(typed[i] !== piDigits[i]){
+
+            input.value = typed.slice(0,i);
+
+            scoreEl.textContent = i;
+
+            return;
+        }
+    }
+
+    scoreEl.textContent = typed.length;
+});
+
+input.focus();
+
+</script>
+
+</body>
+</html>
