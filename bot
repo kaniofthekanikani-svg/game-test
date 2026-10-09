@@ -1,0 +1,118 @@
+import dotenv
+import os
+import json
+import discord
+import random
+import time
+from dotenv import load_dotenv
+from datetime import datetime, timedelta, timezone
+
+load_dotenv()
+
+
+TOKEN = os.getenv("TOKEN")
+
+ALLOWED_GUILDS = [""]   # 許可サーバー
+TARGET_CHANNEL_ID = [] # 動かすチャンネル
+
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
+
+okiro = 6 #競技が始まる(?)
+
+tagsticker = int() #ウェ-i
+
+
+text = {}
+text["1"] = "おめでとう！1コメだ！"
+text["2"] = "残念だったな!(?"
+text["3"] = "特に言う事はないです。(?"
+sonota = "あとで書き換える" #ナアハタホアサタハアハハアサタハアサタハアサアハアソアフタイ(  ･᷄ὢ･᷅  )はぁ💢？？？？？？？？!
+
+def daycheck:
+    global day, rasutoday, okiro
+
+    now = datetime.now(timezone.utc) + timedelta(hours=9)
+    
+    if not rasutoday == now.day:
+        deiri = []
+        rasutoday = now.day
+        
+    return(if now.hour > okiro)
+
+
+# ===== 起動時チェック =====
+@client.event
+
+async def on_ready():
+    print("bot起動")
+    
+    # 許可されてないサーバーから抜ける
+    for guild in client.guilds:
+        if str(guild.id) not in ALLOWED_GUILDS:
+            await guild.leave()
+            print(f"leave : {guild.id} : {guild.name}")
+        else:
+            print(f"allow : {guild.id} : {guild.name}")
+
+# ===== 新規参加時チェック =====
+@client.event
+async def on_guild_join(guild):
+    if str(guild.id) not in ALLOWED_GUILDS:
+        await guild.leave()
+        print(f"leave : {guild.id} : {guild.name}")
+    else:
+        print(f"allow : {guild.id} : {guild.name}")
+
+
+
+
+
+
+
+
+
+# ===== メッセージ処理 =====
+@client.event
+async def on_message(message):
+    if message.guild is None:
+        print('DM')
+        return
+
+
+    # サーバー制限
+    if str(message.guild.id) not in ALLOWED_GUILDS:
+        print('鯖制限')
+        return
+    
+    msg = message.content
+    
+    
+    if message.content == "":
+        if message.stickers[0].id == int(tagsticker):
+            if daycheck:
+            if message.author.id in deiri:
+                pass
+            else:
+                deiri.append(message.author.id)
+                if str(len(deiri)) in text:
+                    ttext = text[str({len(deiri)})]
+                else:
+                    ttext = sonota
+                
+                await message.reply(f"{ttext}\n-# {len(deiri)}人目")
+            
+    
+    
+    
+    
+#調査ログ系
+@client.event
+async def on_member_update(before, after):
+    pass
+    
+    
+    
+
+client.run(TOKEN)
