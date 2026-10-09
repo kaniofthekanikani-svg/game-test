@@ -13,11 +13,12 @@ load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
 ALLOWED_GUILDS = [""]   # 許可サーバー
-TARGET_CHANNEL_ID = [] # 動かすチャンネル
+TARGET_CHANNEL_ID = [] # 動かすチャンネル(使ってない)
 
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
+deiri =[]
 
 okiro = 6 #競技が始まる(?)
 
@@ -30,16 +31,18 @@ text["2"] = "残念だったな!(?"
 text["3"] = "特に言う事はないです。(?"
 sonota = "あとで書き換える" #ナアハタホアサタハアハハアサタハアサタハアサアハアソアフタイ(  ･᷄ὢ･᷅  )はぁ💢？？？？？？？？!
 
-def daycheck:
-    global day, rasutoday, okiro
+rasutoday = None
+
+def daycheck():
+    global rasutoday, deiri
 
     now = datetime.now(timezone.utc) + timedelta(hours=9)
-    
-    if not rasutoday == now.day:
+
+    if rasutoday != now.date():
         deiri = []
-        rasutoday = now.day
-        
-    return(if now.hour > okiro)
+        rasutoday = now.date()
+
+    return now.hour >= okiro
 
 
 # ===== 起動時チェック =====
@@ -89,20 +92,16 @@ async def on_message(message):
     msg = message.content
     
     
-    if message.content == "":
-        if message.stickers[0].id == int(tagsticker):
-            if daycheck:
-            if message.author.id in deiri:
-                pass
-            else:
-                deiri.append(message.author.id)
-                if str(len(deiri)) in text:
-                    ttext = text[str({len(deiri)})]
-                else:
-                    ttext = sonota
-                
-                await message.reply(f"{ttext}\n-# {len(deiri)}人目")
-            
+    if message.content == "" and message.stickers:
+        if any(sticker.id == tagsticker for sticker in message.stickers):
+            if daycheck():
+                if message.author.id not in deiri:
+                    deiri.append(message.author.id)
+
+                    count = len(deiri)
+                    ttext = text.get(str(count), sonota)
+
+                    await message.reply(f"{ttext}\n-# {count}人目")
     
     
     
@@ -116,3 +115,4 @@ async def on_member_update(before, after):
     
 
 client.run(TOKEN)
+
