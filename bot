@@ -12,8 +12,8 @@ load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
 
-ALLOWED_GUILDS = [""]   # 許可サーバー
-TARGET_CHANNEL_ID = [] # 動かすチャンネル(使ってない)
+ALLOWED_GUILDS = ["1484785572898930720"]   # 許可サーバー
+TARGET_CHANNEL_ID = ["1484785573699915948"] # 動かすチャンネル(使ってない)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -22,7 +22,7 @@ deiri =[]
 
 okiro = 6 #競技が始まる(?)
 
-tagsticker = int() #ウェ-i
+tagsticker = str("##tg##") #ウェ-i #IDからスタンプの説明に特定の文字列があったらに変更
 
 
 text = {}
@@ -83,25 +83,42 @@ async def on_message(message):
         print('DM')
         return
 
-
     # サーバー制限
     if str(message.guild.id) not in ALLOWED_GUILDS:
         print('鯖制限')
         return
+    if str(message.channel.id) not in TARGET_CHANNEL_ID:
+        return
+    
     
     msg = message.content
     
     
     if message.content == "" and message.stickers:
-        if any(sticker.id == tagsticker for sticker in message.stickers):
+        if message.content == "" and message.stickers:
+            match_found = False
+            for sticker_item in message.stickers:
+                if message.guild:
+                    try:
+                        full_sticker = await message.guild.fetch_sticker(sticker_item.id)
+
+                        if full_sticker.description and tagsticker in full_sticker.description:
+                            match_found = True
+                            break
+                    except Exception:
+                        pass
+                
+        if match_found:
             if daycheck():
                 if message.author.id not in deiri:
                     deiri.append(message.author.id)
 
                     count = len(deiri)
                     ttext = text.get(str(count), sonota)
-
-                    await message.reply(f"{ttext}\n-# {count}人目")
+                    
+                    tttext = f"{ttext}\n-# {count}人目"
+                    print(tttext)
+                    await message.reply(tttext)
     
     
     
@@ -115,4 +132,3 @@ async def on_member_update(before, after):
     
 
 client.run(TOKEN)
-
