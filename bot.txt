@@ -6,6 +6,7 @@ import random
 import time
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 load_dotenv()
 
@@ -36,7 +37,7 @@ rasutoday = None
 def daycheck():
     global rasutoday, deiri
 
-    now = datetime.now(timezone.utc) + timedelta(hours=9)
+    now = datetime.now(ZoneInfo("Asia/Tokyo"))
 
     if rasutoday != now.date():
         deiri = []
