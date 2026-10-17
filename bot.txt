@@ -14,7 +14,7 @@ load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
 ALLOWED_GUILDS = ["1484785572898930720"]   # 許可サーバー
-TARGET_CHANNEL_ID = ["1484785573699915948"] # 動かすチャンネル(使ってない)
+TARGET_CHANNEL_ID = ["1484785573699915948"] # 動かすチャンネル
 
 intents = discord.Intents.default()
 intents.message_content = True
